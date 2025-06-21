@@ -1,15 +1,10 @@
 <nav class="sidebar" [class.collapsed]="isCollapsed">
   <button class="toggle-btn" (click)="toggleMenu()">
-    ☰
+    <span class="icon">☰</span>
+    <span class="text" *ngIf="!isCollapsed"> Intap</span>
   </button>
 
   <ul class="menu">
-    <li>
-      <a routerLink="/register-times">
-        <span class="icon">🕒</span>
-        <span class="text" *ngIf="!isCollapsed">Registrar tiempos</span>
-      </a>
-    </li>
     <li>
       <a (click)="cerrarSesion()" style="cursor:pointer;">
         <span class="icon">🚪</span>

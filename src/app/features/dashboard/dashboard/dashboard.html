@@ -23,7 +23,8 @@
       <td>
         <button class="icon-button" title="Editar" (click)="editActivity(activity)">✏️</button>
         <button class="icon-button" title="Eliminar" (click)="confirmDelete(activity.Id)">🗑️</button>
-        <button class="icon-button" title="Añadir tiempo">🕒</button>
+        <button class="icon-button" title="Añadir tiempo" (click)="openTimeModal(activity)">🕒</button>
+        <button class="icon-button" title="Ver detalle" (click)="openDetailsModal(activity)">👁️</button>
       </td>
     </tr>
   </tbody>
@@ -45,5 +46,51 @@
         <button type="button" class="cancel" (click)="closeModal()">Cancelar</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div *ngIf="showTimeModal" class="modal-overlay">
+  <div class="modal">
+    <h3>Actividad: {{ selectedActivityForTime?.Descripcion }}</h3>
+
+    <div class="form-group">
+      <label>Fecha:</label>
+      <input type="date" [(ngModel)]="newTimeDate" />
+    </div>
+
+    <div class="form-group">
+      <label>Horas:</label>
+      <input type="number" [(ngModel)]="newTimeHours" min="1" max="8" />
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="saveTime()">Guardar</button>
+      <button class="cancel" (click)="closeTimeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showDetailsModal">
+  <div class="modal details-modal">
+    <h3>Actividad: {{ selectedActivityDetails?.Descripcion }}</h3>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let time of selectedActivityDetails?.TimeActivities">
+          <td>{{ time.Date | date:'dd/MM/yyyy' }}</td>
+          <td>{{ time.Hours }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="modal-actions">
+      <button (click)="closeDetailsModal()">Cancelar</button>
+    </div>
   </div>
 </div>
