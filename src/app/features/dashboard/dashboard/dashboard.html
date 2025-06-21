@@ -1,1 +1,49 @@
-<p>dashboard works!</p>
+<div class="dashboard-header">
+  <h2>Lista de actividades</h2>
+  <button class="add-button" (click)="openModal()">➕ Añadir nueva actividad</button>
+</div>
+
+<p *ngIf="isLoading">Cargando actividades...</p>
+
+<table class="activity-table">
+  <thead>
+    <tr>
+      <!-- Id oculto -->
+      <th style="display: none;">ID</th>
+      <th>Descripción</th>
+      <th>Total de Horas</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let activity of activities">
+      <td style="display: none;">{{ activity.Id }}</td>
+      <td>{{ activity.Descripcion }}</td>
+      <td>{{ activity.totalHours }}</td>
+      <td>
+        <button class="icon-button" title="Editar" (click)="editActivity(activity)">✏️</button>
+        <button class="icon-button" title="Eliminar" (click)="confirmDelete(activity.Id)">🗑️</button>
+        <button class="icon-button" title="Añadir tiempo">🕒</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal">
+    <h3>{{ isEditMode ? 'Editar Actividad' : 'Nueva Actividad' }}</h3>
+    <form (ngSubmit)="submitActivity()" #activityForm="ngForm">
+      <textarea
+        name="descripcion"
+        [(ngModel)]="newDescription"
+        required
+        placeholder="Descripción"
+        rows="4"
+      ></textarea>
+      <div class="modal-actions">
+        <button type="submit" [disabled]="!activityForm.valid">{{ isEditMode ? 'Actualizar' : 'Guardar' }}</button>
+        <button type="button" class="cancel" (click)="closeModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

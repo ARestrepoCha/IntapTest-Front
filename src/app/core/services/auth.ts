@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+
 import { Observable } from 'rxjs';
 
 interface LoginRequest {
@@ -8,7 +10,7 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  token: string;
+  TokenValue: string;
   // Otros campos que tu backend devuelva
 }
 
@@ -23,9 +25,23 @@ interface CreateUserRequest {
   providedIn: 'root'
 })
 export class Auth {
-  private baseUrl = 'https://localhost:7253/api'; // tu puerto/backend local
+  private baseUrl = 'https://localhost:7253/api';
+  private tokenKey = 'token';
 
-  constructor(private http: HttpClient) {}
+  constructor(private router: Router, private http: HttpClient) {}
+
+  isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  isAuthenticated(): boolean {
+    if (!this.isBrowser()) return false;
+    return !!localStorage.getItem('token');
+  }
 
   login(data: LoginRequest): Observable<LoginResponse> {
     console.log(`${this.baseUrl}/User/login`);
@@ -33,7 +49,24 @@ export class Auth {
   }
 
   createUser(data: CreateUserRequest): Observable<boolean> {
-    console.log(`${this.baseUrl}/User/login`);
     return this.http.post<boolean>(`${this.baseUrl}/User`, data);
+  }
+
+  getHeaders(): HttpHeaders {
+    const headers: any = {};
+    if (this.isBrowser()) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    return new HttpHeaders(headers);
+  }
+
+  logout() {
+    if (this.isBrowser()) {
+      localStorage.removeItem('token');
+      this.router.navigate(['/auth/login']);
+    }
   }
 }

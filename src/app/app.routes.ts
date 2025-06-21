@@ -2,26 +2,28 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './layout/main-layout/main-layout';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
-
-  // 👇 módulo lazy para login/register
+  // Rutas públicas
   {
     path: 'auth',
     loadChildren: () =>
       import('./features/auth/auth-module').then((m) => m.AuthModule)
   },
 
-  // 👇 rutas protegidas con layout (navbar, etc.)
+  // Rutas protegidas con layout
   {
     path: '',
     component: MainLayout,
     children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadComponent: () =>
           import('./features/dashboard/dashboard/dashboard').then(m => m.Dashboard)
       }
-      // otras rutas aquí
     ]
-  }
+  },
+  { path: '**', redirectTo: 'auth/login' }
+
+  // Puedes agregar ruta comodín si quieres:
+  // { path: '**', component: NotFoundComponent }
 ];
