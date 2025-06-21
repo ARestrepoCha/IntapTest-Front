@@ -1,10 +1,24 @@
-<nav>
-  <h3>Menú principal</h3>
-  <!-- Aquí va tu menú hamburguesa o links -->
-  <a routerLink="/dashboard">Dashboard</a>
-  <a routerLink="/auth/login">Cerrar sesión</a>
+<nav class="sidebar" [class.collapsed]="isCollapsed">
+  <button class="toggle-btn" (click)="toggleMenu()">
+    ☰
+  </button>
+
+  <ul class="menu">
+    <li>
+      <a routerLink="/register-times">
+        <span class="icon">🕒</span>
+        <span class="text" *ngIf="!isCollapsed">Registrar tiempos</span>
+      </a>
+    </li>
+    <li>
+      <a (click)="cerrarSesion()" style="cursor:pointer;">
+        <span class="icon">🚪</span>
+        <span class="text" *ngIf="!isCollapsed">Cerrar sesión</span>
+      </a>
+    </li>
+  </ul>
 </nav>
 
-<main>
+<main class="content" [class.expanded]="isCollapsed">
   <router-outlet></router-outlet>
 </main>
