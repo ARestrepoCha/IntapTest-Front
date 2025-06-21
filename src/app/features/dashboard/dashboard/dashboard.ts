@@ -4,6 +4,7 @@ import { Auth } from '../../../core/services/auth';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivityResponse, ActivityService } from '../../../core/services/activity';
+import { TimeActivityService, CreateTimeActivityRequest } from '../../../core/services/time-activity-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,7 +18,8 @@ export class Dashboard implements OnInit {
       private authService: Auth,
       private router: Router,
       private activityService: ActivityService,
-      private cd: ChangeDetectorRef
+      private cd: ChangeDetectorRef,
+      private timeActivityService: TimeActivityService
     ) {}
 
     activities: (ActivityResponse & { totalHours: number })[] = [];
@@ -26,6 +28,8 @@ export class Dashboard implements OnInit {
     newDescription = '';
     isEditMode = false;
     editingId: string | null = null;
+    selectedActivityDetails: ActivityResponse | null = null;
+    showDetailsModal = false;
 
     ngOnInit(): void {
       if (!this.authService.isAuthenticated()) {
@@ -111,5 +115,68 @@ export class Dashboard implements OnInit {
         }
       });
     }
+  }
+
+  selectedActivityForTime?: ActivityResponse;
+  newTimeDate: string = '';
+  newTimeHours: number | null = null;
+  showTimeModal: boolean = false;
+  totalHoursForSelected: number = 0;
+
+  openTimeModal(activity: ActivityResponse) {
+    this.selectedActivityForTime = activity;
+    this.newTimeDate = '';
+    this.newTimeHours = null;
+    this.totalHoursForSelected = activity.TimeActivities.reduce((acc, t) => acc + t.Hours, 0);
+    this.showTimeModal = true;
+  }
+
+  closeTimeModal() {
+    this.showTimeModal = false;
+    this.selectedActivityForTime = undefined;
+  }
+
+  saveTime() {
+    const newHours = this.newTimeHours ?? 0;
+    const total = this.totalHoursForSelected + newHours;
+
+    if (total > 8) {
+      alert('El total de horas no puede ser mayor a 8.');
+      return;
+    }
+
+    if (!this.newTimeDate || !this.selectedActivityForTime) {
+      alert('Faltan campos obligatorios.');
+      return;
+    }
+
+    const payload: CreateTimeActivityRequest = {
+      ActivityId: this.selectedActivityForTime.Id,
+      Date: new Date(this.newTimeDate).toISOString(),
+      Hours: newHours
+    };
+
+    this.timeActivityService.create(payload).subscribe({
+      next: () => {
+        this.closeTimeModal();
+        this.loadActivities();
+      },
+      error: (err) => {
+        alert(err.error[0].Message);
+      }
+    });
+  }
+
+  openDetailsModal(activity: ActivityResponse) {
+    this.selectedActivityDetails = {
+      ...activity,
+      TimeActivities: [...activity.TimeActivities].sort((a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime())
+    };
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal() {
+    this.selectedActivityDetails = null;
+    this.showDetailsModal = false;
   }
 }
